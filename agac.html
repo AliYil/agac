@@ -1,0 +1,258 @@
+﻿<!doctype html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8">
+    <title>Agac</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <div id="inputArea">
+        Buraya yapıştır:
+        <div id="htmlPasteArea" contenteditable="true"></div>
+    </div>
+    <div class="tree" id="tree">
+    </div>
+    <script>
+        $(document).ready(function () {
+            $("#htmlPasteArea").on("input",
+                function (e) {
+                    var table = $("#htmlPasteArea table.resultTable");
+                    if (!table.length) {
+                        $("#htmlPasteArea").html("");
+                        return;
+                    }
+                    var root = getData(table[0]);
+                    console.log(root);
+                    $("#inputArea").hide();
+                    $("#tree").append($("<ul></ul>").append(toHtml(root)));
+                });
+        });
+
+        function getData(table) {
+            var textData = getTableTextData(table);
+            $.each(textData,
+                function (i, v) {
+                    var proximityTexts = v.proximity.split(" ");
+                    v.proximityIndicators = $.map(proximityTexts,
+                        function (t) {
+                            return toProximityIndicator(t);
+                        });
+                });
+            var root = $.grep(textData, function (d) { return d.proximityIndicators.length === 0 })[0];
+            findParents(root, textData);
+            return root;
+        }
+
+        function getTableTextData(table) {
+            var data = $.map(table.rows,
+                function (row, i) {
+                    if (i <= 0) return false;
+                    return {
+                        index: parseInt(row.cells[0].innerText),
+                        gender: row.cells[1].innerText,
+                        proximity: row.cells[2].innerText,
+                        firstName: row.cells[3].innerText,
+                        lastName: row.cells[4].innerText,
+                        fathersName: row.cells[5].innerText,
+                        mothersName: row.cells[6].innerText,
+                        birth: row.cells[7].innerText,
+                        location: row.cells[8].innerText,
+                        codes: row.cells[9].innerText,
+                        marital: row.cells[10].innerText,
+                        status: row.cells[11].innerText
+                    }
+                });
+            data.shift();
+            return data;
+        }
+
+        function findParents(individual, list) {
+            individual.mother = findParent(individual, list, 0);
+            individual.father = findParent(individual, list, 1);
+        }
+
+        function findParent(individual, list, parentCode) {
+            var parentIndicators = JSON.parse(JSON.stringify(individual.proximityIndicators));
+            parentIndicators.push(parentCode);
+            var parent = $.grep(list,
+                function (d) {
+                    if (d.proximityIndicators.length < individual.length) return false;
+                    return arraysEqual(d.proximityIndicators, parentIndicators);
+                });
+            if (parent.length) {
+                findParents(parent[0], list);
+                return parent[0];
+            } else return null;
+        }
+
+        function toHtml(node) {
+            var li = $("<li></li>");
+            var a = $("<a href='#'>"
+                + node.firstName + " " + node.lastName
+                + "<br>Doğum:" + node.birth
+                + "<br>" + node.status
+                + "<br>" + node.location.replace("\n", "<br>")
+                + "</a>");
+            li.append(a);
+            var ul = $("<ul></ul>");
+            if (node.mother) ul.append(toHtml(node.mother));
+            if (node.father) ul.append(toHtml(node.father));
+            li.append(ul);
+            return li;
+        }
+
+        function toProximityIndicator(text) {
+            if (text.startsWith("Kendi")) return null;
+            if (text.startsWith("Anne")) return 0;
+            if (text.startsWith("Baba")) return 1;
+            throw "'" + text + "' metni yakınlık derecesi olarak algılanamadı!";
+        }
+
+        function arraysEqual(a, b) {
+            if (a === b) return true;
+            if (a == null || b == null) return false;
+            if (a.length !== b.length) return false;
+
+            for (var i = 0; i < a.length; ++i) {
+                if (a[i] !== b[i]) return false;
+            }
+            return true;
+        }
+
+    </script>
+    <style>
+        #htmlPasteArea {
+            border: 2px black solid;
+            background-color: #f0ffff;
+            height: 300px;
+        }
+
+        #tree {
+            overflow-x: scroll;
+        }
+
+        /*TREE STYLE*/
+        /*<!--
+        Copyright (c) 2018 by Philipp Khn (https://codepen.io/philippkuehn/pen/QbrOaN)
+
+
+        Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+        The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+        -->*/
+        body {
+            font-family: sans-serif;
+            font-size: 15px;
+        }
+
+        .tree {
+            -webkit-transform: rotate(180deg);
+            transform: rotate(180deg);
+            -webkit-transform-origin: 50%;
+            transform-origin: 50%;
+        }
+
+            .tree ul {
+                position: relative;
+                padding: 1em 0;
+                white-space: nowrap;
+                margin: 0 auto;
+                text-align: center;
+            }
+
+                .tree ul::after {
+                    content: '';
+                    display: table;
+                    clear: both;
+                }
+
+            .tree li {
+                display: inline-block;
+                vertical-align: top;
+                text-align: center;
+                list-style-type: none;
+                position: relative;
+                padding: 1em .5em 0 .5em;
+            }
+
+                .tree li::before, .tree li::after {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    right: 50%;
+                    border-top: 1px solid #ccc;
+                    width: 50%;
+                    height: 1em;
+                }
+
+                .tree li::after {
+                    right: auto;
+                    left: 50%;
+                    border-left: 1px solid #ccc;
+                }
+
+                .tree li:only-child::after, .tree li:only-child::before {
+                    display: none;
+                }
+
+                .tree li:only-child {
+                    padding-top: 0;
+                }
+
+                .tree li:first-child::before, .tree li:last-child::after {
+                    border: 0 none;
+                }
+
+                .tree li:last-child::before {
+                    border-right: 1px solid #ccc;
+                    border-radius: 0 5px 0 0;
+                }
+
+                .tree li:first-child::after {
+                    border-radius: 5px 0 0 0;
+                }
+
+            .tree ul ul::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 50%;
+                border-left: 1px solid #ccc;
+                width: 0;
+                height: 1em;
+            }
+
+            .tree li a {
+                border: 1px solid #ccc;
+                padding: .5em .75em;
+                text-decoration: none;
+                display: inline-block;
+                border-radius: 5px;
+                color: #333;
+                position: relative;
+                top: 1px;
+                -webkit-transform: rotate(180deg);
+                transform: rotate(180deg);
+            }
+
+                .tree li a:hover,
+                .tree li a:hover + ul li a {
+                    background: #e9453f;
+                    color: #fff;
+                    border: 1px solid #e9453f;
+                }
+
+                    .tree li a:hover + ul li::after,
+                    .tree li a:hover + ul li::before,
+                    .tree li a:hover + ul::before,
+                    .tree li a:hover + ul ul::before {
+                        border-color: #e9453f;
+                    }
+
+        /*TREE STYLE END*/
+    </style>
+</body>
+</html>
