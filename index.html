@@ -11,8 +11,12 @@
         Buraya yapıştır:
         <div id="htmlPasteArea" contenteditable="true"></div>
     </div>
-    <div class="tree" id="tree">
+    <div id="treeArea">
+        <div class="tree" id="tree">
+        </div>
+        <input type="checkbox"/>
     </div>
+
     <script>
         $(document).ready(function () {
             $("#htmlPasteArea").on("input",
@@ -63,7 +67,7 @@
                         status: row.cells[11].innerText
                     }
                 });
-            data = $.grep(data, function(d) { return !!d });
+            data = $.grep(data, function (d) { return !!d });
             return data;
         }
 
@@ -87,14 +91,14 @@
                 switch (parentCode) {
                     case 0:
                         return {
-                            firstName: individual.fathersName + " (" + individual.lastName + ")",
-                            gender: "E",
+                            firstName: individual.mothersName + " (" + individual.lastName + ")",
+                            gender: "K",
                             simple: true
                         }
                     case 1:
                         return {
-                            firstName: individual.mothersName + " (" + individual.lastName + ")",
-                            gender: "K",
+                            firstName: individual.fathersName + " (" + individual.lastName + ")",
+                            gender: "E",
                             simple: true
                         }
                 }
