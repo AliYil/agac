@@ -8,13 +8,21 @@
 
 <body>
     <div id="inputArea">
-        <h2>
-            Soy Bilgisi Görselleştirme
-        </h2>
+        <div class="inputSection">
+            <h2>
+                Soy Bilgisi Görselleştirme
+            </h2>
+            <p>
+                <a href="https://www.turkiye.gov.tr/nvi-alt-ust-soy-bilgisi-sorgulama" target="_blank">e-Devlet Alt-Üst Soy Bilgisi Sorgulama</a> sayfasındaki soy bilgilerini Ctrl+A ile seçtikten sonra kopyalayıp aşağıdaki kutuya yapıştır:
+            </p>
+            <div id="htmlPasteArea" contenteditable="true"></div>
+        </div>
         <p>
-            <a href="https://www.turkiye.gov.tr/nvi-alt-ust-soy-bilgisi-sorgulama" target="_blank">e-Devlet Alt-Üst Soy Bilgisi Sorgulama</a> sayfasındaki soy bilgilerini Ctrl+A ile seçtikten sonra kopyalayıp aşağıdaki kutuya yapıştır:
+            <b>Uyarı!</b> Bu sayfadaki tüm işlemler çevrimdışı yapılmaktadır ve girilen veriler hiçbir şekilde toplanmamaktadır. Hassas bilgilerinizi internette paylaşırken her zaman dikkatli olun.
         </p>
-        <div id="htmlPasteArea" contenteditable="true"></div>
+        <p>
+            <a href='#' download>Sayfayı İndir</a> | <a href='https://github.com/AliYil/agac/blob/master/index.html'>Kaynak Kodu</a>
+        </p>
     </div>
     <div id="treeArea">
         <div class="tree" id="tree">
@@ -184,6 +192,11 @@
         #inputArea {
             width: 600px;
             margin: 60px auto;
+        }
+
+        #inputArea .inputSection {
+            background-color: #fff;
+            padding: 20px;
         }
 
         #htmlPasteArea {
