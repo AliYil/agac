@@ -83,22 +83,37 @@
             if (parent.length) {
                 findParents(parent[0], list);
                 return parent[0];
-            } else return null;
+            } else return {
+                firstName: (parentCode === 0 ? individual.fathersName : individual.mothersName) + " (" + individual.lastName + ")",
+                simple: true
+            };
         }
 
         function toHtml(node) {
             var li = $("<li></li>");
+
+            var content;
+
+            if (node.simple) {
+                content = node.firstName;
+            } else {
+                content = node.firstName + " " + node.lastName
+                    + "<br>Doğum:" + node.birth
+                    + "<br>" + node.status
+                    + "<br>" + node.location.replace("\n", "<br>");
+            }
+
             var a = $("<a href='#'>"
-                + node.firstName + " " + node.lastName
-                + "<br>Doğum:" + node.birth
-                + "<br>" + node.status
-                + "<br>" + node.location.replace("\n", "<br>")
+                + content
                 + "</a>");
             li.append(a);
-            var ul = $("<ul></ul>");
-            if (node.mother) ul.append(toHtml(node.mother));
-            if (node.father) ul.append(toHtml(node.father));
-            li.append(ul);
+
+            if (node.mother || node.father) {
+                var ul = $("<ul></ul>");
+                if (node.mother) ul.append(toHtml(node.mother));
+                if (node.father) ul.append(toHtml(node.father));
+                li.append(ul);
+            }
             return li;
         }
 
