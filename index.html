@@ -47,7 +47,7 @@
         function getTableTextData(table) {
             var data = $.map(table.rows,
                 function (row, i) {
-                    if (i <= 0) return false;
+                    if (i <= 0 || row.cells.length !== 12) return false;
                     return {
                         index: parseInt(row.cells[0].innerText),
                         gender: row.cells[1].innerText,
@@ -63,7 +63,7 @@
                         status: row.cells[11].innerText
                     }
                 });
-            data.shift();
+            data = $.grep(data, function(d) { return !!d });
             return data;
         }
 
@@ -137,7 +137,7 @@
             if (text.startsWith("Kendi")) return null;
             if (text.startsWith("Anne")) return 0;
             if (text.startsWith("Baba")) return 1;
-            throw "'" + text + "' metni yakınlık derecesi olarak algılanamadı!";
+            return -1;
         }
 
         function arraysEqual(a, b) {
