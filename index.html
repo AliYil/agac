@@ -8,17 +8,30 @@
 
 <body>
     <div id="inputArea">
-        Buraya yapıştır:
+        <h2>
+            Soy Bilgisi Görselleştirme
+        </h2>
+        <p>
+            <a href="https://www.turkiye.gov.tr/nvi-alt-ust-soy-bilgisi-sorgulama" target="_blank">e-Devlet Alt-Üst Soy Bilgisi Sorgulama</a> sayfasındaki soy bilgilerini Ctrl+A ile seçtikten sonra kopyalayıp aşağıdaki kutuya yapıştır:
+        </p>
         <div id="htmlPasteArea" contenteditable="true"></div>
     </div>
     <div id="treeArea">
         <div class="tree" id="tree">
         </div>
-        <input type="checkbox"/>
+        <div id="treeInputArea">
+            <div>
+                <input type="checkbox" name="chkShowDetail" id="chkShowDetail" checked="checked" /><label for="chkShowDetail">Detayları göster</label>
+            </div>
+            <div>
+                <button onclick="window.location.reload()">Tekrar</button>
+            </div>
+        </div>
     </div>
 
     <script>
         $(document).ready(function () {
+            $("#treeArea").hide();
             $("#htmlPasteArea").on("input",
                 function (e) {
                     var table = $("#htmlPasteArea table.resultTable");
@@ -30,7 +43,12 @@
                     console.log(root);
                     $("#inputArea").hide();
                     $("#tree").append($("<ul></ul>").append(toHtml(root)));
+                    $("#treeArea").show();
                 });
+
+            $("#chkShowDetail").change(function () {
+                $(".individualDetail").toggle(this.checked);
+            });
         });
 
         function getData(table) {
@@ -114,9 +132,11 @@
                 content = node.firstName;
             } else {
                 content = node.firstName + " " + node.lastName
+                    + "<span class='individualDetail'>"
                     + "<br>Doğum:" + node.birth
                     + "<br>" + node.status
-                    + "<br>" + node.location.replace("\n", "<br>");
+                    + "<br>" + node.location.replace("\n", "<br>")
+                    + "</span>";
             }
 
             var a = $("<a href='#'>"
@@ -157,18 +177,35 @@
 
     </script>
     <style>
+        body {
+            background-color: #f5f5f5;
+        }
+
+        #inputArea {
+            width: 600px;
+            margin: 60px auto;
+        }
+
         #htmlPasteArea {
             border: 2px black solid;
             background-color: #ffffff;
             height: 300px;
         }
 
-        body {
-            background-color: #f5f5f5;
+        #treeInputArea {
+            position: fixed;
+            display: block;
+            top: 99%;
+            left: 10px;
+            margin: -60px 0 0 0;
+            padding: 10px;
+            border: 1px solid;
+            background-color: #fff;
         }
 
         .tree {
             overflow-x: scroll;
+            background-color: #ffffff;
         }
 
             .tree li a.male {
