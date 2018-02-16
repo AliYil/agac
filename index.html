@@ -83,9 +83,21 @@
             if (parent.length) {
                 findParents(parent[0], list);
                 return parent[0];
-            } else return {
-                firstName: (parentCode === 0 ? individual.fathersName : individual.mothersName) + " (" + individual.lastName + ")",
-                simple: true
+            } else {
+                switch (parentCode) {
+                    case 0:
+                        return {
+                            firstName: individual.fathersName + " (" + individual.lastName + ")",
+                            gender: "E",
+                            simple: true
+                        }
+                    case 1:
+                        return {
+                            firstName: individual.mothersName + " (" + individual.lastName + ")",
+                            gender: "K",
+                            simple: true
+                        }
+                }
             };
         }
 
@@ -106,6 +118,10 @@
             var a = $("<a href='#'>"
                 + content
                 + "</a>");
+
+            if (node.gender === "E") a.addClass("male");
+            if (node.gender === "K") a.addClass("female");
+
             li.append(a);
 
             if (node.mother || node.father) {
@@ -139,13 +155,25 @@
     <style>
         #htmlPasteArea {
             border: 2px black solid;
-            background-color: #f0ffff;
+            background-color: #ffffff;
             height: 300px;
         }
 
-        #tree {
+        body {
+            background-color: #dcdcdc;
+        }
+
+        .tree {
             overflow-x: scroll;
         }
+
+            .tree li a.male {
+                background-color: #f3f9ff;
+            }
+
+            .tree li a.female {
+                background-color: #fff4f4;
+            }
 
         /*TREE STYLE*/
         /*<!--
